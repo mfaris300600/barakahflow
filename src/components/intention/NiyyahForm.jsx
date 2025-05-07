@@ -45,4 +45,4 @@ function NiyyahForm({ onSubmit }) {
   );
 }
 
-export default NiyyahForm;0
+export default NiyyahForm;
