@@ -1,0 +1,118 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #F3F4F6;
+  color: #1F2937;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  color: #1F2937;
+  margin-top: 0;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(31,41,55,0.06);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.btn {
+  background: #4F46E5;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 22px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.btn:hover, .btn:focus {
+  background: #4338CA;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12);
+}
+
+input, textarea {
+  font-family: inherit;
+  border-radius: 6px;
+  border: 1px solid #D1D5DB;
+  padding: 10px;
+  font-size: 1rem;
+  transition: border 0.2s;
+}
+input:focus, textarea:focus {
+  border: 1.5px solid #4F46E5;
+  outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: #F3F4F6;
+}
+::-webkit-scrollbar-thumb {
+  background: #E5E7EB;
+  border-radius: 8px;
+}
