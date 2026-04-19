@@ -117,7 +117,7 @@ class WeekOverviewPage extends React.Component {
 			>
 				<View style={ { flexDirection: 'column' } }>
 					<View style={ this.styles.dayDate }>
-						<Text style={ this.styles.dayOfWeek }>{day.format( 'dddd' )}</Text>
+						<Text style={ this.styles.dayOfWeek }>{day.format( 'ddd' )}</Text>
 						<Text style={ this.styles.shortDate }>
 							{hd} {hijriMonthName( hm, 'short' )} · {day.format( 'DD MMM' )}
 						</Text>

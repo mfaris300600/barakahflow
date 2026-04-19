@@ -46,7 +46,7 @@ class MonthOverviewPage extends React.Component {
 					textTransform: 'uppercase',
 					color: 'black',
 					padding: '10 5',
-					fontSize: 35,
+					fontSize: 24,
 					fontWeight: 'bold',
 					marginLeft: 'auto',
 				},
