@@ -27,21 +27,21 @@ class Header extends React.PureComponent {
 			},
 			subtitle: {
 				marginLeft: 'auto',
-				textTransform: 'uppercase',
+				textTransform: props.subtitleUppercase ? 'uppercase' : 'none',
 				textAlign: 'right',
 				margin: '0 5',
 				fontSize: props.subtitleSize,
 				flex: 1,
 			},
 			title: {
-				textTransform: 'uppercase',
+				textTransform: props.titleUppercase ? 'uppercase' : 'none',
 				textDecoration: 'none',
 				justifyContent: 'center',
 				textAlign: 'right',
 				color: 'black',
 				padding: '10 5',
 				fontSize: props.titleSize,
-				maxWidth: 165,
+				maxWidth: 220,
 			},
 			arrow: {
 				color: '#AAA',
@@ -127,7 +127,11 @@ class Header extends React.PureComponent {
 					</View>
 					<View style={ this.styles.dateInfo }>
 						{this.renderSpecialItems()}
-						<Text style={ this.styles.subtitle }>{subtitle}</Text>
+						{typeof subtitle === 'string' ? (
+							<Text style={ this.styles.subtitle }>{subtitle}</Text>
+						) : (
+							<View style={ this.styles.subtitle }>{subtitle}</View>
+						)}
 					</View>
 				</View>
 				{calendar}
@@ -139,6 +143,8 @@ class Header extends React.PureComponent {
 Header.defaultProps = {
 	titleSize: 20,
 	subtitleSize: 20,
+	titleUppercase: true,
+	subtitleUppercase: true,
 };
 
 Header.propTypes = {
@@ -148,11 +154,13 @@ Header.propTypes = {
 	isLeftHanded: PropTypes.bool.isRequired,
 	number: PropTypes.string.isRequired,
 	specialItems: PropTypes.array,
-	subtitle: PropTypes.string.isRequired,
+	subtitle: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ).isRequired,
 	subtitleSize: PropTypes.number,
+	subtitleUppercase: PropTypes.bool,
 	title: PropTypes.string.isRequired,
 	titleLink: PropTypes.string,
 	titleSize: PropTypes.number,
+	titleUppercase: PropTypes.bool,
 	previousLink: PropTypes.string.isRequired,
 	nextLink: PropTypes.string.isRequired,
 };

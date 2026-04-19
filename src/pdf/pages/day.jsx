@@ -1,9 +1,14 @@
-import { Page, View, StyleSheet } from '@react-pdf/renderer';
+import { Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import dayjs from 'dayjs/esm';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { hijriInfo, hijriMonthDayKey, hijriMonthName } from '~/lib/hijri';
+import {
+	formatGregorianLong,
+	formatHijriDayTitle,
+	hijriInfo,
+	hijriMonthDayKey,
+} from '~/lib/hijri';
 import { findByDate } from '~/lib/special-dates-utils';
 import Header from '~/pdf/components/header';
 import Itinerary from '~/pdf/components/itinerary';
@@ -43,16 +48,22 @@ class DayPage extends React.Component {
 		const specialItems = this.props.config.specialDates.filter(
 			findByDate( specialDateKey ),
 		);
-		const { hy, hm, hd } = hijriInfo( date );
+		const { hd } = hijriInfo( date );
+		const subtitle = (
+			<Text style={ { fontSize: 12 } }>{formatGregorianLong( date )}</Text>
+		);
 		return (
 			<>
 				<Page id={ dayPageLink( date, config ) } size={ config.pageSize } dpi={ config.dpi }>
 					<View style={ this.styles.page }>
 						<Header
 							isLeftHanded={ config.isLeftHanded }
-							title={ hijriMonthName( hm ) + ' ' + hy }
+							title={ formatHijriDayTitle( date ) }
+							titleUppercase={ false }
+							titleSize={ 18 }
 							titleLink={ '#' + monthOverviewLink( date, config ) }
-							subtitle={ date.format( 'dddd' ) + ' · ' + date.format( 'D MMM YYYY' ) }
+							subtitle={ subtitle }
+							subtitleUppercase={ false }
 							number={ String( hd ).padStart( 2, '0' ) }
 							previousLink={ '#' + previousDayPageLink( date, config ) }
 							nextLink={ '#' + nextDayPageLink( date, config ) }

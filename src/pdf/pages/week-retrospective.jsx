@@ -1,11 +1,14 @@
-import { Page, View, StyleSheet } from '@react-pdf/renderer';
+import { Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import dayjs from 'dayjs/esm';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { withTranslation } from 'react-i18next';
 
 import { getWeekNumber } from '~/lib/date';
-import { hijriInfo, hijriMonthName } from '~/lib/hijri';
+import {
+	formatGregorianWeekRange,
+	formatHijriWeekRange,
+} from '~/lib/hijri';
 import Header from '~/pdf/components/header';
 import Itinerary from '~/pdf/components/itinerary';
 import MiniCalendar, { HIGHLIGHT_WEEK } from '~/pdf/components/mini-calendar';
@@ -19,16 +22,18 @@ class WeekRetrospectivePage extends React.Component {
 		Object.assign( {}, { content, page: pageStyle( this.props.config ) } ),
 	);
 
-	getNameOfWeek() {
+	renderSubtitle() {
 		const { date } = this.props;
 		const start = date.startOf( 'week' );
 		const end = date.endOf( 'week' );
-		const startInfo = hijriInfo( start );
-		const endInfo = hijriInfo( end );
-		const startHijri = `${startInfo.hd} ${hijriMonthName( startInfo.hm, 'short' )}`;
-		const endHijri = `${endInfo.hd} ${hijriMonthName( endInfo.hm, 'short' )} ${endInfo.hy}`;
-		const gregRange = `${start.format( 'DD MMM' )} – ${end.format( 'DD MMM YYYY' )}`;
-		return `${startHijri} – ${endHijri}  ·  ${gregRange}`;
+		return (
+			<View style={ { flexDirection: 'column', alignItems: 'flex-end' } }>
+				<Text style={ { fontSize: 16 } }>{formatHijriWeekRange( start, end )}</Text>
+				<Text style={ { fontSize: 11, color: '#555' } }>
+					{formatGregorianWeekRange( start, end )}
+				</Text>
+			</View>
+		);
 	}
 
 	render() {
@@ -42,8 +47,8 @@ class WeekRetrospectivePage extends React.Component {
 							isLeftHanded={ config.isLeftHanded }
 							title={ t( 'page.retrospective.title' ) }
 							titleSize={ 15 }
-							subtitle={ this.getNameOfWeek() }
-							subtitleSize={ 18 }
+							subtitle={ this.renderSubtitle() }
+							subtitleUppercase={ false }
 							number={ getWeekNumber( date ).toString() }
 							previousLink={
 								'#' + weekRetrospectiveLink( date.subtract( 1, 'week' ) )

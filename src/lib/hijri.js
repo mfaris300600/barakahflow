@@ -113,6 +113,68 @@ export function formatDualDate( dayjsDate, gregorianFormat = 'DD MMM YYYY' ) {
 }
 
 /**
+ * English ordinal suffix for a day number: 1 -> "1st", 2 -> "2nd", 25 -> "25th".
+ */
+export function ordinal( n ) {
+	const mod100 = n % 100;
+	if ( mod100 >= 11 && mod100 <= 13 ) {
+		return `${n}th`;
+	}
+	switch ( n % 10 ) {
+		case 1: return `${n}st`;
+		case 2: return `${n}nd`;
+		case 3: return `${n}rd`;
+		default: return `${n}th`;
+	}
+}
+
+/**
+ * Day-page title: "Monday, 25th Shawwal 1447"
+ */
+export function formatHijriDayTitle( dayjsDate ) {
+	const { hy, hm, hd } = hijriInfo( dayjsDate );
+	return `${dayjsDate.format( 'dddd' )}, ${ordinal( hd )} ${HIJRI_MONTHS[ hm - 1 ].name} ${hy}`;
+}
+
+/**
+ * Gregorian long-form: "13th April 2026"
+ */
+export function formatGregorianLong( dayjsDate ) {
+	const d = dayjsDate.date();
+	return `${ordinal( d )} ${dayjsDate.format( 'MMMM YYYY' )}`;
+}
+
+/**
+ * Hijri date range for a week: "25th Shawwal – 2nd Dhu al-Qi'dah 1447".
+ * Always shows the year from the end date; if the start is in the same
+ * month as the end, collapses to "25th – 30th Shawwal 1447".
+ */
+export function formatHijriWeekRange( startDayjs, endDayjs ) {
+	const s = hijriInfo( startDayjs );
+	const e = hijriInfo( endDayjs );
+	const sameMonth = s.hy === e.hy && s.hm === e.hm;
+	if ( sameMonth ) {
+		return `${ordinal( s.hd )} – ${ordinal( e.hd )} ${HIJRI_MONTHS[ s.hm - 1 ].name} ${s.hy}`;
+	}
+	const startPart = `${ordinal( s.hd )} ${HIJRI_MONTHS[ s.hm - 1 ].name}`;
+	const endPart = `${ordinal( e.hd )} ${HIJRI_MONTHS[ e.hm - 1 ].name} ${e.hy}`;
+	return `${startPart} – ${endPart}`;
+}
+
+/**
+ * Gregorian date range for a week: "13th – 19th April 2026" (or with different
+ * months when the week straddles a month boundary).
+ */
+export function formatGregorianWeekRange( startDayjs, endDayjs ) {
+	const sameMonth = startDayjs.month() === endDayjs.month() &&
+		startDayjs.year() === endDayjs.year();
+	if ( sameMonth ) {
+		return `${ordinal( startDayjs.date() )} – ${ordinal( endDayjs.date() )} ${endDayjs.format( 'MMMM YYYY' )}`;
+	}
+	return `${ordinal( startDayjs.date() )} ${startDayjs.format( 'MMMM' )} – ${ordinal( endDayjs.date() )} ${endDayjs.format( 'MMMM YYYY' )}`;
+}
+
+/**
  * Format the Hijri portion of a date: "12 Ramadan 1447 AH"
  */
 export function formatHijriDate( dayjsDate ) {
@@ -142,6 +204,31 @@ export function hijriMonthKey( dayjsDate ) {
 export function hijriMonthDayKey( dayjsDate ) {
 	const { hm, hd } = hijriInfo( dayjsDate );
 	return `${String( hm ).padStart( 2, '0' )}-${String( hd ).padStart( 2, '0' )}`;
+}
+
+/**
+ * Compute the [start, end) day range of a calendar whose config is
+ * { year: hy, month: 0..11, monthCount: n }. Useful for deciding which
+ * mini-calendar cells should resolve to a link target that actually
+ * exists in the generated PDF.
+ *
+ * `start` is the *first rendered day* (Sunday/Monday-of-week of the 1st of
+ * the first Hijri month), `end` is the *first day AFTER the last Hijri
+ * month* (exclusive).
+ */
+export function calendarRangeFromConfig( config ) {
+	const firstOfMonth = dayjsFromHijri( config.year, config.month + 1, 1 );
+	const start = firstOfMonth.startOf( 'week' );
+	const end = addHijriMonths( firstOfMonth, config.monthCount );
+	return { start, end };
+}
+
+/**
+ * True if `day` falls within [start, end) — i.e. the day page for it is in
+ * the generated PDF.
+ */
+export function isDayInRange( day, start, end ) {
+	return ! day.isBefore( start, 'day' ) && day.isBefore( end, 'day' );
 }
 
 /**

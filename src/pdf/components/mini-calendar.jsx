@@ -7,10 +7,12 @@ import { withTranslation } from 'react-i18next';
 import { getWeekdays, getWeekendDays, getWeekNumber } from '~/lib/date';
 import {
 	addHijriMonths,
+	calendarRangeFromConfig,
 	endOfHijriMonth,
 	hijriInfo,
 	hijriMonthDayKey,
 	hijriMonthName,
+	isDayInRange,
 	isSameHijriMonth,
 	startOfHijriMonth,
 } from '~/lib/hijri';
@@ -125,27 +127,40 @@ class MiniCalendar extends React.Component {
 	renderMonthName() {
 		const { monthArrow, monthName, pushLeft, pushRight, header } = this.styles;
 		const { config, date } = this.props;
+		const { start, end } = calendarRangeFromConfig( config );
 		const { hy, hm } = hijriInfo( date );
+		const prevMonth = addHijriMonths( date, -1 );
+		const nextMonth = addHijriMonths( date, 1 );
+		const prevInRange = isDayInRange( endOfHijriMonth( prevMonth ), start, end );
+		const nextInRange = isDayInRange( startOfHijriMonth( nextMonth ), start, end );
 		return (
 			<View style={ header }>
-				<Link
-					src={ '#' + monthOverviewLink( addHijriMonths( date, -1 ), config ) }
-					style={ [ monthArrow, pushLeft ] }
-				>
-					{'<'}
-				</Link>
+				{prevInRange ? (
+					<Link
+						src={ '#' + monthOverviewLink( prevMonth, config ) }
+						style={ [ monthArrow, pushLeft ] }
+					>
+						{'<'}
+					</Link>
+				) : (
+					<Text style={ [ monthArrow, pushLeft, { color: '#DDD' } ] }>{'<'}</Text>
+				)}
 				<Link src={ '#' + monthOverviewLink( date, config ) } style={ monthName }>
 					{hijriMonthName( hm, 'short' )}
 				</Link>
 				<Link src={ '#' + yearOverviewLink() } style={ monthName }>
 					{hy}
 				</Link>
-				<Link
-					src={ '#' + monthOverviewLink( addHijriMonths( date, 1 ), config ) }
-					style={ [ monthArrow, pushRight ] }
-				>
-					{'>'}
-				</Link>
+				{nextInRange ? (
+					<Link
+						src={ '#' + monthOverviewLink( nextMonth, config ) }
+						style={ [ monthArrow, pushRight ] }
+					>
+						{'>'}
+					</Link>
+				) : (
+					<Text style={ [ monthArrow, pushRight, { color: '#DDD' } ] }>{'>'}</Text>
+				)}
 			</View>
 		);
 	}
@@ -204,6 +219,7 @@ class MiniCalendar extends React.Component {
 	renderWeek( week ) {
 		const { config, t } = this.props;
 		const { day } = this.styles;
+		const { start: rangeStart, end: rangeEnd } = calendarRangeFromConfig( config );
 		const days = [];
 		const weekendDays = getWeekendDays( config.weekendDays, config.firstDayOfWeek );
 		const weekNumber = getWeekNumber( week );
@@ -248,15 +264,24 @@ class MiniCalendar extends React.Component {
 				}
 			}
 
-			days.push(
-				<Link
-					key={ i }
-					src={ '#' + dayPageLink( currentDay, config ) }
-					style={ dayStyles }
-				>
-					{hijriInfo( currentDay ).hd}
-				</Link>,
-			);
+			const dayNumber = hijriInfo( currentDay ).hd;
+			if ( isDayInRange( currentDay, rangeStart, rangeEnd ) ) {
+				days.push(
+					<Link
+						key={ i }
+						src={ '#' + dayPageLink( currentDay, config ) }
+						style={ dayStyles }
+					>
+						{dayNumber}
+					</Link>,
+				);
+			} else {
+				days.push(
+					<Text key={ i } style={ dayStyles }>
+						{dayNumber}
+					</Text>,
+				);
+			}
 		}
 
 		const weekStyles = [ this.styles.week ];
@@ -266,22 +291,34 @@ class MiniCalendar extends React.Component {
 		) {
 			weekStyles.push( this.styles.currentWeek );
 		}
+		const weekInRange = isDayInRange( week, rangeStart, rangeEnd ) ||
+			isDayInRange( week.add( 6, 'days' ), rangeStart, rangeEnd );
 		return (
 			<View key={ weekNumber } style={ weekStyles }>
-				<Link
-					src={ '#' + weekOverviewLink( week, config ) }
-					style={ [ day, this.styles.weekNumber ] }
-				>
-					{weekNumber}
-				</Link>
+				{weekInRange ? (
+					<Link
+						src={ '#' + weekOverviewLink( week, config ) }
+						style={ [ day, this.styles.weekNumber ] }
+					>
+						{weekNumber}
+					</Link>
+				) : (
+					<Text style={ [ day, this.styles.weekNumber ] }>{weekNumber}</Text>
+				)}
 				{days}
 				{config.isWeekRetrospectiveEnabled && (
-					<Link
-						src={ '#' + weekRetrospectiveLink( week ) }
-						style={ [ day, this.styles.weekRetrospective ] }
-					>
-						{t( 'calendar.body.retrospective' )}
-					</Link>
+					weekInRange ? (
+						<Link
+							src={ '#' + weekRetrospectiveLink( week ) }
+							style={ [ day, this.styles.weekRetrospective ] }
+						>
+							{t( 'calendar.body.retrospective' )}
+						</Link>
+					) : (
+						<Text style={ [ day, this.styles.weekRetrospective ] }>
+							{t( 'calendar.body.retrospective' )}
+						</Text>
+					)
 				)}
 			</View>
 		);

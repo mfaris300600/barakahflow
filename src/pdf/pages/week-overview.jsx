@@ -5,7 +5,13 @@ import React from 'react';
 import { withTranslation } from 'react-i18next';
 
 import { getWeekNumber } from '~/lib/date';
-import { hijriInfo, hijriMonthDayKey, hijriMonthName } from '~/lib/hijri';
+import {
+	formatGregorianWeekRange,
+	formatHijriWeekRange,
+	hijriInfo,
+	hijriMonthDayKey,
+	hijriMonthName,
+} from '~/lib/hijri';
 import {
 	findByDate,
 	HOLIDAY_DAY_TYPE,
@@ -69,16 +75,18 @@ class WeekOverviewPage extends React.Component {
 		),
 	);
 
-	getNameOfWeek() {
+	renderSubtitle() {
 		const { date } = this.props;
 		const start = date.startOf( 'week' );
 		const end = date.endOf( 'week' );
-		const startInfo = hijriInfo( start );
-		const endInfo = hijriInfo( end );
-		const startHijri = `${startInfo.hd} ${hijriMonthName( startInfo.hm, 'short' )}`;
-		const endHijri = `${endInfo.hd} ${hijriMonthName( endInfo.hm, 'short' )} ${endInfo.hy}`;
-		const gregRange = `${start.format( 'DD MMM' )} – ${end.format( 'DD MMM YYYY' )}`;
-		return `${startHijri} – ${endHijri}  ·  ${gregRange}`;
+		return (
+			<View style={ { flexDirection: 'column', alignItems: 'flex-end' } }>
+				<Text style={ { fontSize: 16 } }>{formatHijriWeekRange( start, end )}</Text>
+				<Text style={ { fontSize: 11, color: '#555' } }>
+					{formatGregorianWeekRange( start, end )}
+				</Text>
+			</View>
+		);
 	}
 
 	renderDays() {
@@ -150,7 +158,8 @@ class WeekOverviewPage extends React.Component {
 					<Header
 						isLeftHanded={ config.isLeftHanded }
 						title={ t( 'page.week.title' ) }
-						subtitle={ this.getNameOfWeek() }
+						subtitle={ this.renderSubtitle() }
+						subtitleUppercase={ false }
 						number={ getWeekNumber( date ).toString() }
 						previousLink={
 							'#' + weekOverviewLink( date.subtract( 1, 'week' ), config )
